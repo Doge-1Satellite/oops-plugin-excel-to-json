@@ -168,13 +168,20 @@ function run() {
         outJsonPathServer = path_1.default.join(__dirname, main_1.config.PathJsonServer.replace("project://", "../../../") + "/");
     }
     const files = fs.readdirSync(inputExcelPath);
-    files.forEach((f) => {
+    files.forEach(async (f) => {
         let name = f.substring(0, f.indexOf("."));
         let ext = f.toString().substring(f.lastIndexOf(".") + 1);
         if (ext == "xlsx") {
+            // 定义一个普通的async函数
+            let workbook = new excel.Workbook();
+            // 读取excel
+            await workbook.xlsx.readFile(inputExcelPath + f);
+            let worksheet = workbook.getWorksheet(1); // 获取第一个worksheet 
+            //将名字改为表名而不是文件名
+            let WSname = worksheet.name;
             if (outJsonPathServer)
-                convert(inputExcelPath + f, outJsonPathServer + name + ".json", name, false); // 服务器数据
-            convert(inputExcelPath + f, outJsonPathClient + name + ".json", name, true); // 客户端数据
+                convert(inputExcelPath + f, outJsonPathServer + WSname + ".json", WSname, false); // 服务器数据
+            convert(inputExcelPath + f, outJsonPathClient + WSname + ".json", WSname, true); // 客户端数据
         }
     });
 }
